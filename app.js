@@ -1,5 +1,6 @@
-let db = loadDatabase();
-let activeProfile = null; // 'vinicius' | 'zelio'
+let db = {};
+window.currentAuthUser = null;
+let activeProfile = null;
 let activeTab = 'dashboard';
 let currentYear = 2026;
 let currentMonth = 11; // Novembro 2026
@@ -188,13 +189,123 @@ function computeMonthSummary(profileKey, year, month, depth = 0) {
   };
 }
 
-// ==================== INITIALIZATION ====================
+// ==================== INITIALIZATION & FIREBASE AUTH ====================
 function init() {
-  applySettingsToUI();
   populateDateSelectors();
   initCurrencyMasks();
-  updateProfilePreviews();
   setDefaultFormDates();
+  initFirebaseAuth();
+}
+
+function initFirebaseAuth() {
+  if (typeof firebase === 'undefined' || !isFirebaseConfigured()) {
+    showLoginScreen();
+    showLoginError('Firebase ainda não configurado. Cole as credenciais em firebase-config.js.');
+    return;
+  }
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+  }
+
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      window.currentAuthUser = user;
+      const rawName = (user.email || '').split('@')[0] || 'Usuário';
+      const displayUser = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      const lbl = document.getElementById('logged-user-label');
+      if (lbl) lbl.textContent = displayUser;
+
+      db = await loadUserDatabase(user);
+      hideLoginError();
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('profile-screen').classList.remove('hidden');
+      applySettingsToUI();
+    } else {
+      window.currentAuthUser = null;
+      activeProfile = null;
+      db = {};
+      showLoginScreen();
+    }
+  });
+}
+
+function showLoginScreen() {
+  document.getElementById('app-shell').classList.add('hidden');
+  document.getElementById('profile-screen').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function showLoginError(msg) {
+  const errEl = document.getElementById('login-error');
+  if (!errEl) return;
+  errEl.textContent = msg;
+  errEl.classList.remove('hidden');
+}
+
+function hideLoginError() {
+  const errEl = document.getElementById('login-error');
+  if (errEl) errEl.classList.add('hidden');
+}
+
+function togglePasswordVisibility() {
+  const inp = document.getElementById('login-pass');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function handleLoginSubmit(e) {
+  e.preventDefault();
+  hideLoginError();
+
+  if (typeof firebase === 'undefined' || !isFirebaseConfigured()) {
+    showLoginError('Firebase ainda não configurado. Cole suas credenciais no arquivo firebase-config.js.');
+    return;
+  }
+
+  const userVal = document.getElementById('login-user').value.trim();
+  const passVal = document.getElementById('login-pass').value;
+  if (!userVal || !passVal) return;
+
+  const email = userVal.includes('@')
+    ? userVal.toLowerCase()
+    : `${userVal.toLowerCase()}@fersalestech.app`;
+
+  const btn = document.getElementById('login-submit-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+  }
+
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, passVal);
+    document.getElementById('login-pass').value = '';
+  } catch (err) {
+    console.error('Erro de login:', err);
+    if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+      showLoginError('Usuário ou senha incorretos.');
+    } else if (err.code === 'auth/too-many-requests') {
+      showLoginError('Muitas tentativas. Aguarde alguns instantes e tente novamente.');
+    } else {
+      showLoginError('Não foi possível entrar. Verifique sua conexão e tente novamente.');
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  }
+}
+
+async function logoutFirebase() {
+  activeProfile = null;
+  db = {};
+  if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    await firebase.auth().signOut();
+  } else {
+    showLoginScreen();
+  }
 }
 
 function populateDateSelectors() {
@@ -384,10 +495,6 @@ function createNewProfile(e) {
 
 function deleteActiveProfile() {
   if (!activeProfile || !db[activeProfile]) return;
-  if (getProfileKeys().length <= 1) {
-    showToast('Não é possível excluir o único controle existente.');
-    return;
-  }
   const name = db[activeProfile].name || activeProfile;
   if (!confirm(`Tem certeza que deseja excluir o controle "${name}"? Todos os dados deste controle serão apagados.`)) return;
   delete db[activeProfile];
@@ -1478,13 +1585,12 @@ function importBackup(ev) {
 }
 
 function resetToSeedData() {
-  if (!confirm('Isso vai restaurar os dados originais da planilha de 2026 e apagar alterações recentes. Continuar?')) return;
-  db = createInitialData();
+  if (!confirm('Isso vai zerar os dados atuais desta conta. Continuar?')) return;
+  db = createInitialDataForUser(window.currentAuthUser ? window.currentAuthUser.email : '');
   saveDatabase(db);
   closeModal('modal-backup');
-  renderAll();
-  updateProfilePreviews();
-  showToast('Dados iniciais restaurados!');
+  backToProfiles();
+  showToast('Dados da conta zerados!');
 }
 
 // ==================== ABA 6: RELATÓRIO & PDF ====================

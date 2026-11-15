@@ -1,48 +1,87 @@
-const STORAGE_KEY = 'fersales_financas_db_v2';
+const STORAGE_PREFIX = 'fersales_financas_db_';
 
 function uid() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 }
 
-function createInitialData() {
-  return {
-    vinicius: {
-      name: 'Vinícius',
-      subtitle: 'Meu Controle',
-      type: 'normal',
-      months: {},
-      continuousBills: [],
-      bankNotes: []
-    },
-    zelio: {
-      name: 'Pai (Zélio)',
-      subtitle: 'Controle do Meu Pai',
-      type: 'normal',
-      months: {},
-      continuousBills: [],
-      bankNotes: []
-    }
-  };
-}
-
-function loadDatabase() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      return JSON.parse(raw);
-    }
-  } catch (e) {
-    console.warn('Erro ao ler localStorage:', e);
+function createInitialDataForUser(email) {
+  const normalized = String(email || '').trim().toLowerCase();
+  // Apenas o login do Vinicius inicia com os controles Vinicius e Pai (Zélio)
+  if (normalized === 'vinicius@fersalestech.app') {
+    return {
+      vinicius: {
+        name: 'Vinícius',
+        subtitle: 'Meu Controle',
+        type: 'normal',
+        months: {},
+        continuousBills: [],
+        bankNotes: []
+      },
+      zelio: {
+        name: 'Pai (Zélio)',
+        subtitle: 'Controle do Meu Pai',
+        type: 'normal',
+        months: {},
+        continuousBills: [],
+        bankNotes: []
+      }
+    };
   }
-  const initial = createInitialData();
-  saveDatabase(initial);
-  return initial;
+  // Novos logins (ex: Fernandes) iniciam zerados sem nenhum controle pré-criado
+  return {};
 }
 
-function saveDatabase(db) {
+async function loadUserDatabase(user) {
+  if (!user || !user.uid) return {};
+  const cacheKey = STORAGE_PREFIX + user.uid;
+
+  if (typeof firebase !== 'undefined' && isFirebaseConfigured()) {
+    try {
+      const firestore = firebase.firestore();
+      const docRef = firestore.collection('users').doc(user.uid);
+      const snap = await docRef.get();
+      if (snap.exists) {
+        const data = snap.data() || {};
+        try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+        return data;
+      }
+      const initial = createInitialDataForUser(user.email);
+      await docRef.set(initial);
+      try { localStorage.setItem(cacheKey, JSON.stringify(initial)); } catch (_) {}
+      return initial;
+    } catch (err) {
+      console.error('Erro ao carregar dados do Firestore:', err);
+    }
+  }
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) return JSON.parse(raw);
   } catch (e) {
-    console.warn('Erro ao salvar localStorage:', e);
+    console.warn('Erro ao ler cache local:', e);
+  }
+  return createInitialDataForUser(user.email);
+}
+
+function saveDatabase(data) {
+  if (!window.currentAuthUser || !window.currentAuthUser.uid) return;
+  const userUid = window.currentAuthUser.uid;
+  const cacheKey = STORAGE_PREFIX + userUid;
+
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Erro ao salvar cache local:', e);
+  }
+
+  if (typeof firebase !== 'undefined' && isFirebaseConfigured()) {
+    try {
+      const firestore = firebase.firestore();
+      firestore.collection('users').doc(userUid).set(data).catch(err => {
+        console.error('Erro ao sincronizar com Firestore:', err);
+      });
+    } catch (e) {
+      console.error('Erro ao acessar Firestore:', e);
+    }
   }
 }

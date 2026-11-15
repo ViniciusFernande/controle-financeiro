@@ -11,8 +11,42 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- TELA 0: LOGIN SEGURO (FIREBASE AUTH) -->
+  <section id="login-screen" class="profile-screen">
+    <div class="profile-container profile-container-narrow">
+      <div class="profile-brand-hero">
+        <img src="logo.jpg" alt="Fersales Tech" class="profile-hero-logo" />
+        <h1 class="profile-hero-title">Fersales Tech</h1>
+        <div class="profile-hero-sub">Controle Financeiro</div>
+      </div>
+
+      <div class="card login-card">
+        <h2 class="card-title" style="margin-bottom:4px;">Acesso ao Sistema</h2>
+        <p class="muted-text" style="margin-bottom:18px;">Entre com seu usuário e senha para carregar seus controles.</p>
+
+        <form onsubmit="handleLoginSubmit(event)" class="config-form-stack">
+          <div class="form-group" style="text-align:left;">
+            <label for="login-user">Usuário</label>
+            <input type="text" id="login-user" placeholder="Ex: Vinicius ou Fernandes" autocomplete="username" required />
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label for="login-pass">Senha</label>
+            <div class="password-wrap">
+              <input type="password" id="login-pass" placeholder="Digite sua senha" autocomplete="current-password" required />
+              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()" title="Mostrar / Ocultar senha">👁️</button>
+            </div>
+          </div>
+
+          <div id="login-error" class="login-error hidden"></div>
+
+          <button type="submit" id="login-submit-btn" class="btn btn-navy btn-block">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- TELA 1: SELEÇÃO DE PERFIL -->
-  <section id="profile-screen" class="profile-screen">
+  <section id="profile-screen" class="profile-screen hidden">
     <div class="profile-container profile-container-narrow">
       <div class="profile-brand-hero">
         <img src="logo.jpg" alt="Fersales Tech" class="profile-hero-logo" />
@@ -23,6 +57,11 @@
       <p class="profile-select-prompt">Selecione de quem é o controle financeiro:</p>
 
       <div id="profile-grid" class="profile-stack"></div>
+
+      <div class="logged-user-bar">
+        <span>Conectado como <strong id="logged-user-label">-</strong></span>
+        <button type="button" class="link-btn" style="color:var(--red);" onclick="logoutFirebase()">Sair da conta</button>
+      </div>
     </div>
   </section>
 
@@ -90,6 +129,7 @@
           </div>
           <span class="switch-arrow">&#8644;</span>
         </button>
+        <button class="btn btn-outline btn-sm btn-block" style="margin-top:8px;" onclick="logoutFirebase()">Sair da Conta</button>
       </div>
     </aside>
 
@@ -1239,6 +1279,10 @@
   <div id="chart-tooltip" class="chart-tooltip hidden"></div>
   <div id="toast" class="toast hidden"></div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="seed.js"></script>
   <script src="app.js"></script>
 </body>
