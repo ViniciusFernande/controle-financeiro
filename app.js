@@ -195,6 +195,11 @@ function init() {
   initCurrencyMasks();
   setDefaultFormDates();
   initFirebaseAuth();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.warn('Service Worker não registrado:', err);
+    });
+  }
 }
 
 function initFirebaseAuth() {
@@ -222,7 +227,20 @@ function initFirebaseAuth() {
       document.getElementById('app-shell').classList.add('hidden');
       document.getElementById('profile-screen').classList.remove('hidden');
       applySettingsToUI();
+
+      startFirestoreSync(user, (remoteData) => {
+        db = remoteData || {};
+        applySettingsToUI();
+        if (activeProfile) {
+          if (!db[activeProfile]) {
+            backToProfiles();
+          } else {
+            renderAll();
+          }
+        }
+      });
     } else {
+      stopFirestoreSync();
       window.currentAuthUser = null;
       activeProfile = null;
       db = {};
@@ -312,6 +330,7 @@ async function handleLoginSubmit(e) {
 }
 
 async function logoutFirebase() {
+  stopFirestoreSync();
   activeProfile = null;
   db = {};
   if (typeof firebase !== 'undefined' && firebase.apps.length) {

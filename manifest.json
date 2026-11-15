@@ -1,0 +1,25 @@
+{
+  "name": "Fersales Tech — Controle Financeiro",
+  "short_name": "Fersales Tech",
+  "description": "Controle financeiro pessoal, contas fixas, gastos diários, reservas e financiamentos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f7fa",
+  "theme_color": "#0b1727",
+  "icons": [
+    {
+      "src": "logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

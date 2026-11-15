@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fersales Tech — Controle Financeiro</title>
   <link rel="icon" type="image/jpeg" href="logo.jpg" />
+  <link rel="apple-touch-icon" href="logo.jpg" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b1727" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Fersales Tech" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -455,19 +461,40 @@
 
           <div class="three-col-grid">
             <div class="card">
-              <span class="mini-label">COMPROMISSO TOTAL</span>
-              <div class="big-number mt-4" id="fixas-total">R$ 0,00</div>
-              <span class="muted-text" id="fixas-count-label">0 contas cadastradas</span>
+              <div class="stat-card-row">
+                <div class="stat-card-body">
+                  <span class="mini-label">VALOR TOTAL CONTAS</span>
+                  <div class="big-number mt-4" id="fixas-total">R$ 0,00</div>
+                  <span class="muted-text" id="fixas-count-label">0 contas cadastradas</span>
+                </div>
+                <div class="stat-card-icon stat-icon-navy" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+              </div>
             </div>
             <div class="card">
-              <span class="mini-label">LIQUIDADAS NO MÊS</span>
-              <div class="big-number text-emerald mt-4" id="fixas-pagas-count">0 de 0</div>
-              <div class="progress-bar mt-8"><div id="fixas-progress" class="progress-fill"></div></div>
+              <div class="stat-card-row">
+                <div class="stat-card-body">
+                  <span class="mini-label">LIQUIDADAS NO MÊS</span>
+                  <div class="big-number text-emerald mt-4" id="fixas-pagas-count">0 de 0</div>
+                  <div class="progress-bar mt-8"><div id="fixas-progress" class="progress-fill"></div></div>
+                </div>
+                <div class="stat-card-icon stat-icon-emerald" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+              </div>
             </div>
             <div class="card">
-              <span class="mini-label">PENDENTE DE PAGAMENTO</span>
-              <div class="big-number text-red mt-4" id="fixas-pendente-valor">R$ 0,00</div>
-              <span class="muted-text" id="fixas-pendente-count">0 contas em aberto</span>
+              <div class="stat-card-row">
+                <div class="stat-card-body">
+                  <span class="mini-label">PENDENTE DE PAGAMENTO</span>
+                  <div class="big-number text-red mt-4" id="fixas-pendente-valor">R$ 0,00</div>
+                  <span class="muted-text" id="fixas-pendente-count">0 contas em aberto</span>
+                </div>
+                <div class="stat-card-icon stat-icon-red" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -516,16 +543,37 @@
 
           <div class="three-col-grid">
             <div class="card">
-              <span class="mini-label">TOTAL GASTO NO MÊS</span>
-              <div class="big-number text-red mt-4" id="gastos-total-mes">R$ 0,00</div>
+              <div class="stat-card-row">
+                <div class="stat-card-body">
+                  <span class="mini-label">TOTAL GASTO NO MÊS</span>
+                  <div class="big-number text-red mt-4" id="gastos-total-mes">R$ 0,00</div>
+                </div>
+                <div class="stat-card-icon stat-icon-red" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </div>
+              </div>
             </div>
             <div class="card">
-              <span class="mini-label">MÉDIA POR LANÇAMENTO</span>
-              <div class="big-number mt-4" id="gastos-media">R$ 0,00</div>
+              <div class="stat-card-row">
+                <div class="stat-card-body">
+                  <span class="mini-label">MÉDIA POR LANÇAMENTO</span>
+                  <div class="big-number mt-4" id="gastos-media">R$ 0,00</div>
+                </div>
+                <div class="stat-card-icon stat-icon-navy" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+              </div>
             </div>
             <div class="card">
-              <span class="mini-label">SALDO TOTAL DISPONÍVEL</span>
-              <div class="big-number text-emerald mt-4" id="gastos-saldo-restante">R$ 0,00</div>
+              <div class="stat-card-row">
+                <div class="stat-card-body">
+                  <span class="mini-label">SALDO TOTAL DISPONÍVEL</span>
+                  <div class="big-number text-emerald mt-4" id="gastos-saldo-restante">R$ 0,00</div>
+                </div>
+                <div class="stat-card-icon stat-icon-emerald" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -760,7 +808,10 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Configurações</h1>
-              <p class="page-subtitle">Personalize o nome dos perfis, o título do sistema e a paleta de cores da interface.</p>
+              <p class="page-subtitle">Personalize o nome do perfil, categorias, aparência e conta.</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" class="btn btn-outline" onclick="backToProfiles()">⇄ Trocar Controle</button>
             </div>
           </div>
 
@@ -796,7 +847,6 @@
                     <h3 class="card-title" style="font-size: 15px;">Categorias de Gastos</h3>
                     <p class="muted-text">Edite, adicione ou remova categorias usadas ao registrar um novo gasto.</p>
                   </div>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="resetExpenseCategories()">Restaurar Padrões</button>
                 </div>
 
                 <form class="cat-add-row" onsubmit="addExpenseCategory(event)">

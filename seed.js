@@ -1,4 +1,42 @@
 const STORAGE_PREFIX = 'fersales_financas_db_';
+let firestoreUnsubscribe = null;
+
+function stopFirestoreSync() {
+  if (typeof firestoreUnsubscribe === 'function') {
+    firestoreUnsubscribe();
+    firestoreUnsubscribe = null;
+  }
+}
+
+function startFirestoreSync(user, onRemoteUpdate) {
+  stopFirestoreSync();
+  if (!user || !user.uid || typeof firebase === 'undefined' || !isFirebaseConfigured()) return;
+
+  try {
+    const firestore = firebase.firestore();
+    const docRef = firestore.collection('users').doc(user.uid);
+    const cacheKey = STORAGE_PREFIX + user.uid;
+
+    firestoreUnsubscribe = docRef.onSnapshot(
+      (snap) => {
+        if (!snap.exists) return;
+        // Ignora eco da própria gravação local para não interromper digitação
+        if (snap.metadata && snap.metadata.hasPendingWrites) return;
+
+        const data = snap.data() || {};
+        try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+        if (typeof onRemoteUpdate === 'function') {
+          onRemoteUpdate(data);
+        }
+      },
+      (err) => {
+        console.error('Erro na sincronização em tempo real:', err);
+      }
+    );
+  } catch (err) {
+    console.error('Não foi possível iniciar o listener do Firestore:', err);
+  }
+}
 
 function uid() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
