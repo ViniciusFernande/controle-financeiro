@@ -104,9 +104,16 @@ function getMonthFixedBills(profileKey, year, month) {
       pCurr: null,
       pTotal: null,
       paid: !!(cb.paidByMonth && cb.paidByMonth[key]),
-      isContinuous: true
+      isContinuous: true,
+      sortOrder: typeof cb.sortOrder === 'number' ? cb.sortOrder : null
     }));
-  return [...regular, ...continuous];
+  const combined = [...regular, ...continuous];
+  combined.sort((a, b) => {
+    const ao = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
+    const bo = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
+    return ao - bo;
+  });
+  return combined;
 }
 
 function computeMonthSummary(profileKey, year, month, depth = 0) {
@@ -1049,11 +1056,14 @@ function renderContasFixas(sum, mData) {
       parcelaTxt = `<strong>${b.pCurr}/${b.pTotal}</strong> <span class="muted-text">(faltam ${faltam})</span>`;
     }
     return `
-      <tr>
+      <tr class="fixas-draggable-row" draggable="true" data-id="${b.id}">
         <td>
           <input type="checkbox" class="check-paid" ${b.paid ? 'checked' : ''} onchange="toggleFixedPaid('${b.id}')" />
         </td>
-        <td><strong>${escapeHtml(b.desc)}</strong></td>
+        <td>
+          <span class="drag-handle" title="Arraste para reordenar">⋮⋮</span>
+          <strong>${escapeHtml(b.desc)}</strong>
+        </td>
         <td><strong>${formatBRL(b.val)}</strong></td>
         <td>
           <span class="badge ${b.paid ? 'badge-emerald' : 'badge-amber'}">
@@ -1068,6 +1078,170 @@ function renderContasFixas(sum, mData) {
       </tr>
     `;
   }).join('');
+
+  initFixedDragAndDrop(tbody);
+}
+
+function initFixedDragAndDrop(tbody) {
+  let draggedId = null;
+  let touchTargetId = null;
+  let touchInsertAfter = false;
+
+  const clearIndicators = () => {
+    tbody.querySelectorAll('tr').forEach(r => {
+      r.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+    });
+  };
+
+  tbody.querySelectorAll('tr[data-id]').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      if (e.target && e.target.closest('input, button')) {
+        e.preventDefault();
+        return;
+      }
+      draggedId = row.dataset.id;
+      row.classList.add('dragging');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedId);
+      }
+    });
+
+    row.addEventListener('dragover', e => {
+      if (!draggedId || draggedId === row.dataset.id) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+      const rect = row.getBoundingClientRect();
+      const insertAfter = e.clientY > rect.top + rect.height / 2;
+      tbody.querySelectorAll('tr').forEach(r => {
+        if (r !== row) r.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      row.classList.toggle('drag-over-bottom', insertAfter);
+      row.classList.toggle('drag-over-top', !insertAfter);
+    });
+
+    row.addEventListener('dragleave', () => {
+      row.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      const targetId = row.dataset.id;
+      const rect = row.getBoundingClientRect();
+      const insertAfter = e.clientY > rect.top + rect.height / 2;
+      const sourceId = draggedId;
+      draggedId = null;
+      clearIndicators();
+      if (sourceId && targetId && sourceId !== targetId) {
+        reorderFixedBill(sourceId, targetId, insertAfter);
+      }
+    });
+
+    row.addEventListener('dragend', () => {
+      draggedId = null;
+      clearIndicators();
+    });
+
+    const handle = row.querySelector('.drag-handle');
+    if (handle) {
+      handle.addEventListener('touchstart', () => {
+        draggedId = row.dataset.id;
+        touchTargetId = null;
+        row.classList.add('dragging');
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', e => {
+        if (!draggedId || !e.touches || !e.touches[0]) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        const overRow = el ? el.closest('tr[data-id]') : null;
+        tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top', 'drag-over-bottom'));
+        if (overRow && overRow.dataset.id !== draggedId) {
+          const rect = overRow.getBoundingClientRect();
+          touchInsertAfter = touch.clientY > rect.top + rect.height / 2;
+          touchTargetId = overRow.dataset.id;
+          overRow.classList.toggle('drag-over-bottom', touchInsertAfter);
+          overRow.classList.toggle('drag-over-top', !touchInsertAfter);
+        } else {
+          touchTargetId = null;
+        }
+      }, { passive: false });
+
+      const finishTouch = () => {
+        const sourceId = draggedId;
+        const targetId = touchTargetId;
+        const after = touchInsertAfter;
+        draggedId = null;
+        touchTargetId = null;
+        clearIndicators();
+        if (sourceId && targetId && sourceId !== targetId) {
+          reorderFixedBill(sourceId, targetId, after);
+        }
+      };
+
+      handle.addEventListener('touchend', finishTouch);
+      handle.addEventListener('touchcancel', () => {
+        draggedId = null;
+        touchTargetId = null;
+        clearIndicators();
+      });
+    }
+  });
+}
+
+function reorderFixedBill(draggedId, targetId, insertAfter = false) {
+  const profile = db[activeProfile];
+  const mData = ensureMonthData(activeProfile, currentYear, currentMonth);
+  const fullList = getMonthFixedBills(activeProfile, currentYear, currentMonth);
+
+  const fromIdx = fullList.findIndex(b => b.id === draggedId);
+  const toIdx = fullList.findIndex(b => b.id === targetId);
+  if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+
+  const [moved] = fullList.splice(fromIdx, 1);
+  let insertIdx = fullList.findIndex(b => b.id === targetId);
+  if (insertIdx === -1) return;
+  if (insertAfter) insertIdx += 1;
+  fullList.splice(insertIdx, 0, moved);
+
+  const currentKey = getMonthKey();
+  const contList = profile.continuousBills || [];
+  const allMonthKeys = Object.keys(profile.months || {});
+
+  fullList.forEach((item, index) => {
+    if (item.isContinuous) {
+      const cb = contList.find(b => b.id === item.id);
+      if (cb) {
+        cb.sortOrder = index;
+        // Se essa conta contínua tiver vigências futuras (editadas separadamente), atualiza a ordem delas também
+        contList.forEach(other => {
+          if (other.id !== cb.id && other.startMonthKey > currentKey && other.desc === item.desc) {
+            other.sortOrder = index;
+          }
+        });
+      }
+    } else {
+      const fb = mData.fixedBills.find(b => b.id === item.id);
+      if (fb) fb.sortOrder = index;
+      // Propaga a mesma sequência para os meses seguintes (parcelas da mesma série ou mesma descrição)
+      allMonthKeys.forEach(mKey => {
+        if (mKey <= currentKey) return;
+        const futureMonth = profile.months[mKey];
+        if (!futureMonth || !futureMonth.fixedBills) return;
+        futureMonth.fixedBills.forEach(futureBill => {
+          const sameSeries = fb && fb.seriesId && futureBill.seriesId === fb.seriesId;
+          const sameDesc = futureBill.desc === item.desc;
+          if (sameSeries || sameDesc) {
+            futureBill.sortOrder = index;
+          }
+        });
+      });
+    }
+  });
+
+  saveDatabase(db);
+  renderAll();
 }
 
 function toggleFixedPaid(id) {
@@ -1156,11 +1330,42 @@ function saveFixedModal(e) {
     mData.fixedBills = mData.fixedBills.filter(b => b.id !== id);
     const existingIdx = profile.continuousBills.findIndex(b => b.id === id);
     if (existingIdx !== -1) {
-      profile.continuousBills[existingIdx].desc = desc;
-      profile.continuousBills[existingIdx].val = val;
-      profile.continuousBills[existingIdx].due = due;
-      if (!profile.continuousBills[existingIdx].paidByMonth) profile.continuousBills[existingIdx].paidByMonth = {};
-      profile.continuousBills[existingIdx].paidByMonth[key] = isPaid;
+      const cb = profile.continuousBills[existingIdx];
+      if (!cb.paidByMonth) cb.paidByMonth = {};
+      const changedCoreFields =
+        cb.desc !== desc ||
+        Number(cb.val) !== Number(val) ||
+        Number(cb.due) !== Number(due);
+
+      if (key > cb.startMonthKey && changedCoreFields) {
+        // Preserva o valor antigo nos meses anteriores e cria uma nova vigência a partir deste mês
+        const oldEndMonthKey = cb.endMonthKey || null;
+        const newPaidByMonth = {};
+        Object.keys(cb.paidByMonth).forEach(mKey => {
+          if (mKey >= key) {
+            newPaidByMonth[mKey] = cb.paidByMonth[mKey];
+            delete cb.paidByMonth[mKey];
+          }
+        });
+        newPaidByMonth[key] = isPaid;
+
+        cb.endMonthKey = key;
+        profile.continuousBills.push({
+          id: uid(),
+          desc,
+          val,
+          due,
+          startMonthKey: key,
+          endMonthKey: oldEndMonthKey,
+          paidByMonth: newPaidByMonth,
+          ...(typeof cb.sortOrder === 'number' ? { sortOrder: cb.sortOrder } : {})
+        });
+      } else {
+        cb.desc = desc;
+        cb.val = val;
+        cb.due = due;
+        cb.paidByMonth[key] = isPaid;
+      }
     } else {
       profile.continuousBills.push({
         id: id || uid(),
@@ -1193,6 +1398,9 @@ function saveFixedModal(e) {
       paid: isPaid
     };
     if (seriesId) payload.seriesId = seriesId;
+    if (existingCurr && typeof existingCurr.sortOrder === 'number') {
+      payload.sortOrder = existingCurr.sortOrder;
+    }
 
     const idx = mData.fixedBills.findIndex(b => b.id === id);
     if (idx !== -1) mData.fixedBills[idx] = payload;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fersales-financas-v3';
+const CACHE_NAME = 'fersales-financas-v7';
 const STATIC_ASSETS = [
   './',
   './index.html',
