@@ -2102,12 +2102,54 @@ body {
 }
 
 @media (max-width: 900px) {
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .main-wrapper,
+  .content-area,
+  .tab-panel,
+  .card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .chart-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .config-grid,
   .palette-grid,
   .custom-color-row,
   .fin-kpi-grid,
-  .fin-inline-form {
+  .fin-inline-form,
+  .report-controls-grid,
+  .bank-notes-form,
+  .two-col-grid,
+  .two-col-inputs {
     grid-template-columns: 1fr;
+  }
+
+  .report-sheet {
+    padding: 16px;
+  }
+
+  .report-brand-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .report-brand-header .text-right {
+    text-align: left;
+  }
+
+  .report-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
