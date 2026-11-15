@@ -255,6 +255,21 @@ function togglePasswordVisibility() {
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
+const USER_LOGIN_ALIASES = {
+  vinicius: 'vinicius@fersalestech.app',
+  fernandes: 'fernandes@fersalestech.app'
+};
+
+function resolveLoginAlias(input) {
+  const cleaned = String(input || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  if (cleaned.includes('@')) return cleaned;
+  return USER_LOGIN_ALIASES[cleaned] || `${cleaned}@fersalestech.app`;
+}
+
 async function handleLoginSubmit(e) {
   e.preventDefault();
   hideLoginError();
@@ -268,9 +283,7 @@ async function handleLoginSubmit(e) {
   const passVal = document.getElementById('login-pass').value;
   if (!userVal || !passVal) return;
 
-  const email = userVal.includes('@')
-    ? userVal.toLowerCase()
-    : `${userVal.toLowerCase()}@fersalestech.app`;
+  const email = resolveLoginAlias(userVal);
 
   const btn = document.getElementById('login-submit-btn');
   if (btn) {
