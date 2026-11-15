@@ -1177,18 +1177,67 @@ function saveFixedModal(e) {
     profile.continuousBills = profile.continuousBills.filter(b => b.id !== id);
     const pCurrRaw = document.getElementById('m-fix-pcurr').value;
     const pTotalRaw = document.getElementById('m-fix-ptotal').value;
+    const pCurr = pCurrRaw ? parseInt(pCurrRaw, 10) : null;
+    const pTotal = pTotalRaw ? parseInt(pTotalRaw, 10) : null;
+    const existingCurr = id ? mData.fixedBills.find(b => b.id === id) : null;
+    const hasInstallments = Number.isInteger(pCurr) && Number.isInteger(pTotal) && pCurr >= 1 && pTotal > pCurr;
+    const seriesId = hasInstallments ? ((existingCurr && existingCurr.seriesId) || id || uid()) : null;
+
     const payload = {
       id: id || uid(),
       desc,
       val,
       due,
-      pCurr: pCurrRaw ? parseInt(pCurrRaw, 10) : null,
-      pTotal: pTotalRaw ? parseInt(pTotalRaw, 10) : null,
+      pCurr,
+      pTotal,
       paid: isPaid
     };
+    if (seriesId) payload.seriesId = seriesId;
+
     const idx = mData.fixedBills.findIndex(b => b.id === id);
     if (idx !== -1) mData.fixedBills[idx] = payload;
     else mData.fixedBills.push(payload);
+
+    // Propaga automaticamente as parcelas restantes (pCurr + 1 até pTotal) para os meses seguintes
+    if (hasInstallments) {
+      const remaining = pTotal - pCurr;
+      for (let offset = 1; offset <= remaining; offset++) {
+        const dt = new Date(currentYear, currentMonth - 1 + offset, 1);
+        const targetY = dt.getFullYear();
+        const targetM = dt.getMonth() + 1;
+        const targetMonth = ensureMonthData(activeProfile, targetY, targetM);
+        const futureCurr = pCurr + offset;
+
+        const fIdx = targetMonth.fixedBills.findIndex(
+          b => (b.seriesId && b.seriesId === seriesId) ||
+               (b.desc === desc && b.pCurr === futureCurr && b.pTotal === pTotal)
+        );
+
+        if (fIdx !== -1) {
+          const existingFuture = targetMonth.fixedBills[fIdx];
+          targetMonth.fixedBills[fIdx] = {
+            ...existingFuture,
+            seriesId,
+            desc,
+            val,
+            due,
+            pCurr: futureCurr,
+            pTotal
+          };
+        } else {
+          targetMonth.fixedBills.push({
+            id: uid(),
+            seriesId,
+            desc,
+            val,
+            due,
+            pCurr: futureCurr,
+            pTotal,
+            paid: false
+          });
+        }
+      }
+    }
   }
 
   saveDatabase(db);
