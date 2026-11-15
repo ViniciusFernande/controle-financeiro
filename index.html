@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fersales Tech — Controle Financeiro</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- TELA 1: SELEÇÃO DE PERFIL -->
+  <section id="profile-screen" class="profile-screen">
+    <div class="profile-container profile-container-narrow">
+      <div class="profile-brand-hero">
+        <img src="logo.jpg" alt="Fersales Tech" class="profile-hero-logo" />
+        <h1 class="profile-hero-title">Fersales Tech</h1>
+        <div class="profile-hero-sub">Controle Financeiro</div>
+      </div>
+
+      <p class="profile-select-prompt">Selecione de quem é o controle financeiro:</p>
+
+      <div id="profile-grid" class="profile-stack"></div>
+    </div>
+  </section>
+
+  <!-- TELA 2: APLICAÇÃO PRINCIPAL -->
+  <div id="app-shell" class="app-shell hidden">
+    <!-- Sidebar Desktop -->
+    <aside id="sidebar" class="sidebar">
+      <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Recolher / Expandir barra lateral" aria-label="Recolher barra lateral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="sidebar-header">
+        <div class="brand">
+          <img src="logo.jpg" alt="Controle Financeiro" class="brand-logo-img" />
+          <div class="brand-text">
+            <div class="brand-name" id="sidebar-brand-name">Fersales Tech</div>
+            <div class="brand-sub" id="sidebar-brand-sub">Controle Financeiro</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard" data-profile-type="normal" title="Dashboard" onclick="switchTab('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-tab="receitas" data-profile-type="normal" title="Receitas Mensais" onclick="switchTab('receitas')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Receitas Mensais</span>
+        </button>
+        <button class="nav-item" data-tab="fixas" data-profile-type="normal" title="Contas Fixas" onclick="switchTab('fixas')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Contas Fixas</span>
+        </button>
+        <button class="nav-item" data-tab="gastos" data-profile-type="normal" title="Gastos do Dia a Dia" onclick="switchTab('gastos')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span>Gastos do Dia a Dia</span>
+        </button>
+        <button class="nav-item" data-tab="reserva" data-profile-type="normal" title="Dinheiro Guardado" onclick="switchTab('reserva')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/></svg>
+          <span>Dinheiro Guardado</span>
+        </button>
+        <button class="nav-item" data-tab="relatorio" data-profile-type="normal" title="Relatório" onclick="switchTab('relatorio')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+          <span>Relatório</span>
+        </button>
+        <button class="nav-item hidden" data-tab="financiamento" data-profile-type="financing" title="Financiamento" onclick="switchTab('financiamento')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <span>Financiamento</span>
+        </button>
+        <button class="nav-item" data-tab="config" title="Configurações" onclick="switchTab('config')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Configurações</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="profile-switch-card" onclick="backToProfiles()">
+          <div class="mini-avatar" id="sidebar-avatar">V</div>
+          <div class="profile-switch-info">
+            <strong id="sidebar-profile-name">Vinícius</strong>
+            <span>Trocar perfil</span>
+          </div>
+          <span class="switch-arrow">&#8644;</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="main-wrapper">
+      <!-- Conteúdo das Abas -->
+      <main class="content-area">
+        <!-- ==================== ABA 1: DASHBOARD ==================== -->
+        <section id="tab-dashboard" class="tab-panel active">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Olá, <span id="dash-greeting-name">Vinícius</span></h1>
+              <p class="page-subtitle" id="dash-subtitle">Visão geral das suas finanças.</p>
+            </div>
+            <div class="page-actions">
+              <div class="date-selector-group">
+                <select id="dash-select-month" class="select-clean sync-select-month" onchange="changeMonthYear(this)"></select>
+                <span class="sep">/</span>
+                <select id="dash-select-year" class="select-clean sync-select-year" onchange="changeMonthYear(this)"></select>
+              </div>
+              <button class="btn btn-navy" onclick="openExpenseModal()">
+                + Novo Gasto
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 KPIs -->
+          <div class="kpi-grid">
+            <div class="kpi-card card-emerald-rich">
+              <div class="kpi-top">
+                <span class="kpi-label">SALDO TOTAL DISPONÍVEL</span>
+                <span class="kpi-icon">🏦</span>
+              </div>
+              <div class="kpi-value" id="dash-saldo">R$ 0,00</div>
+              <div class="kpi-foot">
+                <span class="badge-pill-green" id="dash-saldo-status">Livre para gastar</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-navy-border">
+              <div class="kpi-top">
+                <span class="kpi-label">TOTAL CONTAS FIXAS</span>
+                <span class="kpi-icon-soft">📄</span>
+              </div>
+              <div class="kpi-value" id="dash-fixas">R$ 0,00</div>
+              <div class="kpi-foot">
+                <span class="kpi-sub" id="dash-fixas-status">0 pagas / 0 pendentes</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-red-border">
+              <div class="kpi-top">
+                <span class="kpi-label">GASTOS DO MÊS (VARIÁVEIS)</span>
+                <span class="kpi-icon-soft">🛍️</span>
+              </div>
+              <div class="kpi-value text-red" id="dash-gastos">R$ 0,00</div>
+              <div class="kpi-foot">
+                <span class="kpi-sub" id="dash-gastos-count">0 lançamentos no mês</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-amber-border">
+              <div class="kpi-top">
+                <span class="kpi-label">DÍZIMO DO MÊS (10%)</span>
+                <span class="kpi-icon-soft">✨</span>
+              </div>
+              <div class="kpi-value" id="dash-dizimo">R$ 0,00</div>
+              <div class="kpi-foot">
+                <span class="badge-pill-amber">10% de Salário + Extras</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 5 Fixas + Últimos 5 Gastos lado a lado -->
+          <div class="two-col-grid">
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Top 5 Contas Fixas (Maior Valor)</h3>
+                <button class="link-btn" onclick="switchTab('fixas')">Ver todas</button>
+              </div>
+              <div id="dash-top5-fixas" class="compact-list"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Últimos 5 Gastos</h3>
+                <button class="link-btn" onclick="switchTab('gastos')">Ver extrato</button>
+              </div>
+              <div id="dash-last5-gastos" class="compact-list"></div>
+            </div>
+          </div>
+
+          <!-- Gráfico Anual Jan-Dez embaixo -->
+          <div class="card chart-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">
+                  <span class="dot-emerald"></span>
+                  Comparativo Anual <span id="chart-year-label">2026</span>
+                </h3>
+                <p class="card-subtitle">Janeiro a Dezembro • Contas Fixas vs. Gastos do Mês</p>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item"><i class="legend-box navy"></i> Contas Fixas</span>
+                <span class="legend-item"><i class="legend-box emerald"></i> Gastos do Mês</span>
+              </div>
+            </div>
+
+            <div class="chart-summary-strip">
+              <div class="summary-mini">
+                <span>MÉDIA MENSAL FIXA</span>
+                <strong id="chart-avg-fixas">R$ 0,00</strong>
+              </div>
+              <div class="summary-mini">
+                <span>MÉDIA MENSAL VARIÁVEL</span>
+                <strong class="text-emerald" id="chart-avg-gastos">R$ 0,00</strong>
+              </div>
+              <div class="summary-mini">
+                <span>TOTAL ACUMULADO ANO</span>
+                <strong id="chart-total-ano">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="chart-container" id="annual-chart"></div>
+          </div>
+        </section>
+
+        <!-- ==================== ABA 2: RECEITAS & DÍZIMO ==================== -->
+        <section id="tab-receitas" class="tab-panel">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Receitas Mensais</h1>
+              <p class="page-subtitle">Controle de salário, renda extra, saldo transportado e débito automático de contas fixas e dízimo.</p>
+            </div>
+            <div class="page-actions">
+              <div class="date-selector-group">
+                <select class="select-clean sync-select-month" onchange="changeMonthYear(this)"></select>
+                <span class="sep">/</span>
+                <select class="select-clean sync-select-year" onchange="changeMonthYear(this)"></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Cards Superiores: Saldo Disponível, Mês Anterior, Ingressos Totais, Dízimo 10% -->
+          <div class="kpi-grid">
+            <div class="card card-emerald-rich">
+              <div class="card-top-row">
+                <span class="kpi-label">SALDO DISPONÍVEL</span>
+                <span class="badge-pill-green" id="rec-saldo-status">Livre</span>
+              </div>
+              <div class="big-number text-white" id="rec-saldo-disponivel">R$ 0,00</div>
+              <p class="muted-light">Valor disponível após débitos, gastos diários e reservas.</p>
+            </div>
+
+            <div class="card card-emerald-soft">
+              <div class="card-top-row">
+                <span class="mini-label">Sobrado do Mês Anterior</span>
+                <span class="badge badge-emerald">Automático</span>
+              </div>
+              <div class="big-number" id="rec-carryover">R$ 0,00</div>
+              <div class="carryover-desc-row">
+                <p class="muted-text">Somado automaticamente ao seu saldo total disponível.</p>
+                <button type="button" class="pencil-edit-btn" onclick="toggleCarryoverEdit()" title="Editar valor manualmente" aria-label="Editar valor manualmente">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                </button>
+              </div>
+              <div id="carryover-edit-box" class="carryover-edit-row hidden">
+                <label for="input-carryover-override">Ajuste manual:</label>
+                <div class="inline-input-group">
+                  <input type="text" inputmode="numeric" id="input-carryover-override" class="input-sm currency-input" placeholder="Auto" />
+                  <button class="btn btn-outline btn-xs" onclick="saveCarryoverOverride()">Aplicar</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card kpi-dark">
+              <div class="card-top-row">
+                <span class="kpi-label">RENDA MENSAL (SALÁRIO + EXTRA)</span>
+              </div>
+              <div class="big-number text-white" id="rec-total-entradas">R$ 0,00</div>
+              <p class="muted-light">Base de cálculo integral para o dízimo (100%).</p>
+            </div>
+
+            <div class="card card-amber-soft">
+              <div class="card-top-row">
+                <span class="mini-label">Dízimo (10%)</span>
+                <span class="badge badge-amber" id="rec-dizimo-badge">Pendente</span>
+              </div>
+              <div class="big-number" id="rec-dizimo-valor">R$ 0,00</div>
+              <p class="muted-text">Calculado automaticamente: 10% sobre Salário + Renda Extra.</p>
+            </div>
+          </div>
+
+          <!-- Salário + Renda Extra -->
+          <div class="two-col-grid">
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Salário Base Mensal</h3>
+                <span class="badge badge-neutral" id="rec-salario-status">Não lançado</span>
+              </div>
+              <p class="muted-text mb-12">Informe o valor líquido do salário recebido neste mês.</p>
+              <div class="salary-form">
+                <div class="input-prefix-wrap">
+                  <span>R$</span>
+                  <input type="text" inputmode="numeric" id="input-salario" class="currency-input" placeholder="0,00" />
+                </div>
+                <button class="btn btn-navy" onclick="saveSalary()">✓ Salvar</button>
+              </div>
+              <div class="mt-16">
+                <label class="mini-label mb-8" style="display:block;" for="input-bonus13">13º Salário / Férias (opcional)</label>
+                <div class="salary-form">
+                  <div class="input-prefix-wrap">
+                    <span>R$</span>
+                    <input type="text" inputmode="numeric" id="input-bonus13" class="currency-input" placeholder="0,00" />
+                  </div>
+                  <button class="btn btn-outline" onclick="saveSalary()">✓ Salvar</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Renda Extra do Mês</h3>
+                <div class="extra-header-actions">
+                  <button type="button" id="btn-toggle-extra" class="extra-toggle-pill hidden" onclick="toggleExtraList()"></button>
+                  <button class="btn btn-outline btn-sm" onclick="openExtraModal()">+ Adicionar</button>
+                </div>
+              </div>
+              <div id="extra-income-list" class="extra-list"></div>
+              <div class="extra-total-bar">
+                <span>Total Renda Extra:</span>
+                <strong id="rec-total-extra">R$ 0,00</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Débito Mensal Integrado -->
+          <div class="card debit-section">
+            <div class="debit-header">
+              <div>
+                <div class="eyebrow text-red">EXECUÇÃO FINANCEIRA DO MÊS</div>
+                <h2 class="section-title">Débito Mensal Integrado</h2>
+                <p class="muted-text">
+                  Ao clicar em <strong>Debitar</strong>, o sistema desconta do seu saldo total o valor de todas as <strong>Contas Fixas</strong> e do <strong>Dízimo (10%)</strong>.
+                </p>
+              </div>
+              <div class="debit-actions">
+                <button id="btn-debitar" class="btn btn-navy" onclick="toggleDebit()">
+                  ⚡ Realizar Débito
+                </button>
+              </div>
+            </div>
+
+            <div class="four-col-grid mt-16">
+              <div class="mini-stat-card">
+                <span>Saldo Acumulado (Entradas + Anterior)</span>
+                <strong id="deb-bruto">R$ 0,00</strong>
+              </div>
+              <div class="mini-stat-card mini-amber">
+                <span>(-) Dízimo 10%</span>
+                <strong id="deb-dizimo">- R$ 0,00</strong>
+              </div>
+              <div class="mini-stat-card mini-red">
+                <span>(-) Total Contas Fixas</span>
+                <strong id="deb-fixas">- R$ 0,00</strong>
+              </div>
+              <div class="mini-stat-card mini-emerald">
+                <span>SALDO LÍQUIDO APÓS DÉBITO</span>
+                <strong id="deb-restante">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <!-- Resumo Detalhado do que foi debitado -->
+            <div class="debit-table-wrap mt-20">
+              <div class="card-header-compact">
+                <h4 class="card-title">Detalhamento dos Itens Inclusos no Débito</h4>
+                <span class="muted-text" id="deb-items-count">0 itens</span>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Item / Obrigação</th>
+                      <th>Tipo</th>
+                      <th>Vencimento</th>
+                      <th class="text-right">Valor do Débito</th>
+                    </tr>
+                  </thead>
+                  <tbody id="debit-detail-tbody"></tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3"><strong>Total Geral Debitado (Contas Fixas + Dízimo)</strong></td>
+                      <td class="text-right text-red"><strong id="deb-total-geral">- R$ 0,00</strong></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== ABA 3: CONTAS FIXAS ==================== -->
+        <section id="tab-fixas" class="tab-panel">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Contas Fixas Mensais</h1>
+              <p class="page-subtitle">Marque o que já foi pago, acompanhe parcelas restantes, edite ou exclua registros.</p>
+            </div>
+            <div class="page-actions">
+              <div class="date-selector-group">
+                <select class="select-clean sync-select-month" onchange="changeMonthYear(this)"></select>
+                <span class="sep">/</span>
+                <select class="select-clean sync-select-year" onchange="changeMonthYear(this)"></select>
+              </div>
+              <button class="btn btn-navy" onclick="openFixedModal()">
+                + Adicionar Conta Fixa
+              </button>
+            </div>
+          </div>
+
+          <div class="three-col-grid">
+            <div class="card">
+              <span class="mini-label">COMPROMISSO TOTAL</span>
+              <div class="big-number mt-4" id="fixas-total">R$ 0,00</div>
+              <span class="muted-text" id="fixas-count-label">0 contas cadastradas</span>
+            </div>
+            <div class="card">
+              <span class="mini-label">LIQUIDADAS NO MÊS</span>
+              <div class="big-number text-emerald mt-4" id="fixas-pagas-count">0 de 0</div>
+              <div class="progress-bar mt-8"><div id="fixas-progress" class="progress-fill"></div></div>
+            </div>
+            <div class="card">
+              <span class="mini-label">PENDENTE DE PAGAMENTO</span>
+              <div class="big-number text-red mt-4" id="fixas-pendente-valor">R$ 0,00</div>
+              <span class="muted-text" id="fixas-pendente-count">0 contas em aberto</span>
+            </div>
+          </div>
+
+          <div class="card mt-20">
+            <div class="filter-bar">
+              <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all" onclick="setFixedFilter('all')">Todas</button>
+                <button class="filter-btn" data-filter="paid" onclick="setFixedFilter('paid')">Pagas este mês</button>
+                <button class="filter-btn" data-filter="pending" onclick="setFixedFilter('pending')">Pendentes</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 56px;">Pago</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
+                    <th>Parcelas Restantes</th>
+                    <th class="actions-col">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="fixas-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== ABA 4: GASTOS DO DIA A DIA ==================== -->
+        <section id="tab-gastos" class="tab-panel">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Gastos do Dia a Dia</h1>
+              <p class="page-subtitle">Registre gastos avulsos, edite valores ou datas e acompanhe o impacto direto no seu saldo.</p>
+            </div>
+            <div class="page-actions">
+              <div class="date-selector-group">
+                <select class="select-clean sync-select-month" onchange="changeMonthYear(this)"></select>
+                <span class="sep">/</span>
+                <select class="select-clean sync-select-year" onchange="changeMonthYear(this)"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="three-col-grid">
+            <div class="card">
+              <span class="mini-label">TOTAL GASTO NO MÊS</span>
+              <div class="big-number text-red mt-4" id="gastos-total-mes">R$ 0,00</div>
+            </div>
+            <div class="card">
+              <span class="mini-label">MÉDIA POR LANÇAMENTO</span>
+              <div class="big-number mt-4" id="gastos-media">R$ 0,00</div>
+            </div>
+            <div class="card">
+              <span class="mini-label">SALDO TOTAL DISPONÍVEL</span>
+              <div class="big-number text-emerald mt-4" id="gastos-saldo-restante">R$ 0,00</div>
+            </div>
+          </div>
+
+          <!-- Formulário Rápido Inline -->
+          <div class="card mt-20">
+            <div class="card-header-compact">
+              <h3 class="card-title">Registrar Novo Gasto</h3>
+              <span class="badge badge-emerald">Debita do Saldo na Hora</span>
+            </div>
+            <form id="inline-expense-form" class="inline-expense-grid" onsubmit="handleInlineExpenseSubmit(event)">
+              <div class="form-group">
+                <label>Nome do Registro / Gasto</label>
+                <input type="text" id="inline-exp-desc" placeholder="Ex: Mercado, Pastel, Farmácia" required />
+              </div>
+              <div class="form-group">
+                <label>Valor (R$)</label>
+                <input type="text" inputmode="numeric" id="inline-exp-val" class="currency-input" placeholder="0,00" required />
+              </div>
+              <div class="form-group">
+                <label>Data</label>
+                <input type="date" id="inline-exp-date" required />
+              </div>
+              <div class="form-group">
+                <label>Categoria</label>
+                <select id="inline-exp-cat">
+                  <option value="Alimentação">Alimentação</option>
+                  <option value="Transporte">Transporte</option>
+                  <option value="Saúde">Saúde</option>
+                  <option value="Lazer">Lazer</option>
+                  <option value="Compras">Compras</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+              <div class="form-group form-submit-col">
+                <button type="submit" class="btn btn-emerald btn-block">Adicionar &amp; Debitar</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Extrato de Gastos -->
+          <div class="card mt-20">
+            <div class="filter-bar">
+              <h3 class="card-title">Extrato de Gastos Diários</h3>
+              <div class="filter-tabs" id="gastos-cat-filters">
+                <button class="filter-btn active" onclick="setExpenseCatFilter('Todos')">Todos</button>
+                <button class="filter-btn" onclick="setExpenseCatFilter('Alimentação')">Alimentação</button>
+                <button class="filter-btn" onclick="setExpenseCatFilter('Transporte')">Transporte</button>
+                <button class="filter-btn" onclick="setExpenseCatFilter('Saúde')">Saúde</button>
+                <button class="filter-btn" onclick="setExpenseCatFilter('Lazer')">Lazer</button>
+                <button class="filter-btn" onclick="setExpenseCatFilter('Compras')">Compras</button>
+                <button class="filter-btn" onclick="setExpenseCatFilter('Outros')">Outros</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Gasto &amp; Categoria</th>
+                    <th>Data</th>
+                    <th class="text-right">Débito</th>
+                    <th class="actions-col">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="gastos-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== ABA 5: RESERVA & COFRINHO ==================== -->
+        <section id="tab-reserva" class="tab-panel">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Dinheiro Guardado</h1>
+              <p class="page-subtitle">Registre o dinheiro que você retirou e guardou. O valor é debitado do saldo total disponível do mês.</p>
+            </div>
+            <div class="page-actions">
+              <div class="date-selector-group">
+                <select class="select-clean sync-select-month" onchange="changeMonthYear(this)"></select>
+                <span class="sep">/</span>
+                <select class="select-clean sync-select-year" onchange="changeMonthYear(this)"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Guardar / Retirar Dinheiro</h3>
+                <span class="badge badge-amber">Debita do Saldo</span>
+              </div>
+              <form id="reserve-form" class="stacked-form" onsubmit="handleReserveSubmit(event)">
+                <div class="form-group">
+                  <label>Descrição / Finalidade</label>
+                  <input type="text" id="res-desc" placeholder="Ex: Guardado Nubank, Reserva IPVA, PS5" required />
+                </div>
+                <div class="two-col-inputs">
+                  <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="text" inputmode="numeric" id="res-val" class="currency-input" placeholder="0,00" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="res-date" required />
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-navy btn-block">Guardar &amp; Debitar do Saldo</button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Resumo das Reservas</h3>
+              </div>
+              <div class="two-col-inputs mb-16">
+                <div class="mini-stat-card mini-emerald">
+                  <span>Guardado neste mês</span>
+                  <strong id="res-total-mes">R$ 0,00</strong>
+                </div>
+                <div class="mini-stat-card">
+                  <span>Saldo Disponível Atual</span>
+                  <strong id="res-saldo-atual">R$ 0,00</strong>
+                </div>
+              </div>
+              <h4 class="mini-label mb-8">Extrato de Aportes do Mês</h4>
+              <div id="reserve-list" class="extra-list"></div>
+            </div>
+          </div>
+
+          <!-- Gráfico Anual de Dinheiro Guardado -->
+          <div class="card mt-20">
+            <div class="card-header-compact" style="flex-wrap:wrap;gap:12px;">
+              <div>
+                <h3 class="card-title">Evolução do Dinheiro Guardado</h3>
+                <p class="card-subtitle">Total guardado em cada mês de Janeiro a Dezembro (<strong id="res-chart-total-ano">R$ 0,00</strong> no ano).</p>
+              </div>
+              <div class="form-group" style="min-width:110px;">
+                <select id="res-chart-year" onchange="renderReservaChart()"></select>
+              </div>
+            </div>
+            <div id="reserva-annual-chart" class="chart-scroll"></div>
+          </div>
+
+          <!-- Anotações de Bancos & Finalidades -->
+          <div class="card mt-20">
+            <div class="card-header-compact">
+              <div>
+                <h3 class="card-title">Bancos &amp; O que tem guardado em cada um</h3>
+                <p class="card-subtitle">Anotação pessoal para organizar onde cada tipo de dinheiro fica guardado (não altera o saldo).</p>
+              </div>
+            </div>
+
+            <form class="bank-notes-form mb-16" onsubmit="handleBankNoteSubmit(event)">
+              <div class="form-group">
+                <label for="bn-bank">Nome do Banco / Local</label>
+                <input type="text" id="bn-bank" placeholder="Ex: Nubank, Mercado Pago, Caixa" required />
+              </div>
+              <div class="form-group">
+                <label for="bn-desc">O que está guardado nele</label>
+                <input type="text" id="bn-desc" placeholder="Ex: Vale Refeição, Vale, 13º Salário, Geral" required />
+              </div>
+              <div class="form-group form-submit-col">
+                <button type="submit" class="btn btn-navy">+ Anotar Banco</button>
+              </div>
+            </form>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Banco / Local</th>
+                    <th>O que tem guardado</th>
+                    <th class="actions-col">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="bank-notes-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== ABA 6: RELATÓRIO ==================== -->
+        <section id="tab-relatorio" class="tab-panel">
+          <div class="page-header no-print">
+            <div>
+              <h1 class="page-title">Relatório</h1>
+              <p class="page-subtitle">Gere e salve em PDF relatórios individuais ou completos por mês ou ano.</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" class="btn btn-navy" onclick="printReportPDF()">
+                🖨️ Salvar em PDF
+              </button>
+            </div>
+          </div>
+
+          <div class="card no-print mb-16">
+            <div class="report-controls-grid">
+              <div class="form-group">
+                <label for="rep-scope">O que incluir no relatório</label>
+                <select id="rep-scope" onchange="renderRelatorio()">
+                  <option value="all">Todas as abas juntas</option>
+                  <option value="receitas">Receitas Mensais</option>
+                  <option value="fixas">Contas Fixas</option>
+                  <option value="gastos">Gastos do Dia a Dia</option>
+                  <option value="reserva">Dinheiro Guardado</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="rep-period">Período</label>
+                <select id="rep-period" onchange="toggleReportPeriodUI(); renderRelatorio()">
+                  <option value="month">Mês específico</option>
+                  <option value="year">Todos os meses do ano</option>
+                </select>
+              </div>
+              <div class="form-group" id="rep-month-group">
+                <label for="rep-month">Mês</label>
+                <select id="rep-month" onchange="renderRelatorio()"></select>
+              </div>
+              <div class="form-group">
+                <label for="rep-year">Ano</label>
+                <select id="rep-year" onchange="renderRelatorio()"></select>
+              </div>
+            </div>
+          </div>
+
+          <div id="report-preview-area" class="card report-sheet"></div>
+        </section>
+
+        <!-- ==================== ABA 7: CONFIGURAÇÕES ==================== -->
+        <section id="tab-config" class="tab-panel">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Configurações</h1>
+              <p class="page-subtitle">Personalize o nome dos perfis, o título do sistema e a paleta de cores da interface.</p>
+            </div>
+          </div>
+
+          <div class="config-grid">
+            <!-- Card Perfil e Categorias -->
+            <div class="card">
+              <div class="card-header mb-12">
+                <div>
+                  <h2 class="card-title">Perfil e Categorias</h2>
+                  <p class="muted-text">Altere o nome do seu perfil e personalize as categorias de gastos.</p>
+                </div>
+              </div>
+
+              <form class="config-form-stack" onsubmit="saveSettingsNames(event)">
+                <div class="two-col-inputs">
+                  <div class="form-group">
+                    <label for="cfg-active-profile-name">Nome do seu Perfil</label>
+                    <input type="text" id="cfg-active-profile-name" placeholder="Ex: Zélio" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="cfg-active-profile-obs">Observação</label>
+                    <input type="text" id="cfg-active-profile-obs" placeholder="Ex: Meu Controle" />
+                  </div>
+                </div>
+                <div>
+                  <button type="submit" class="btn btn-navy">✓ Salvar</button>
+                </div>
+              </form>
+
+              <div class="cfg-divider">
+                <div class="card-header mb-12">
+                  <div>
+                    <h3 class="card-title" style="font-size: 15px;">Categorias de Gastos</h3>
+                    <p class="muted-text">Edite, adicione ou remova categorias usadas ao registrar um novo gasto.</p>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="resetExpenseCategories()">Restaurar Padrões</button>
+                </div>
+
+                <form class="cat-add-row" onsubmit="addExpenseCategory(event)">
+                  <input type="text" id="cfg-new-cat" placeholder="Nova categoria (ex: Educação, Pets...)" required />
+                  <button type="submit" class="btn btn-emerald btn-sm">+ Adicionar</button>
+                </form>
+
+                <button type="button" class="cat-collapse-btn" id="cfg-cat-toggle-btn" onclick="toggleConfigCategories()">
+                  <span>Categorias cadastradas (<span id="cfg-cat-count">0</span>)</span>
+                  <span class="cat-collapse-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </span>
+                </button>
+
+                <div id="cfg-categories-list" class="cat-list hidden"></div>
+              </div>
+
+              <div class="cfg-divider">
+                <div class="card-header" style="align-items:center;">
+                  <div>
+                    <h3 class="card-title" style="font-size: 15px; color: var(--red);">Excluir este Controle</h3>
+                    <p class="muted-text">Apaga permanentemente este perfil e todos os seus dados salvos.</p>
+                  </div>
+                  <button type="button" class="btn btn-danger-outline btn-sm" onclick="deleteActiveProfile()">🗑️ Deletar Controle</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Paleta de Cores -->
+            <div class="card">
+              <div class="card-header mb-12">
+                <div>
+                  <h2 class="card-title">Paleta de Cores</h2>
+                  <p class="muted-text">Escolha um tema pronto ou personalize as cores principais do site.</p>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="resetThemePalette()">Restaurar Padrão</button>
+              </div>
+
+              <div id="palette-grid" class="palette-grid"></div>
+
+              <div class="custom-color-box">
+                <h3 class="card-title" style="font-size: 14px; margin-bottom: 10px;">Cores Personalizadas</h3>
+                <div class="custom-color-row">
+                  <div class="form-group">
+                    <label for="cfg-color-primary">Cor Principal</label>
+                    <div class="color-picker-wrap">
+                      <input type="color" id="cfg-color-primary" value="#0b1727" oninput="updateColorHexLabel('cfg-color-primary', 'cfg-color-primary-hex')" />
+                      <span id="cfg-color-primary-hex">#0b1727</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="cfg-color-accent">Cor de Destaque</label>
+                    <div class="color-picker-wrap">
+                      <input type="color" id="cfg-color-accent" value="#047857" oninput="updateColorHexLabel('cfg-color-accent', 'cfg-color-accent-hex')" />
+                      <span id="cfg-color-accent-hex">#047857</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="cfg-color-bg">Cor de Fundo</label>
+                    <div class="color-picker-wrap">
+                      <input type="color" id="cfg-color-bg" value="#f5f7fa" oninput="updateColorHexLabel('cfg-color-bg', 'cfg-color-bg-hex')" />
+                      <span id="cfg-color-bg-hex">#f5f7fa</span>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-emerald" onclick="applyCustomColors()">Aplicar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- ==================== ABA: FINANCIAMENTO ==================== -->
+        <section id="tab-financiamento" class="tab-panel">
+          <div class="page-header no-print">
+            <div>
+              <h1 class="page-title" id="fin-page-title">Financiamento</h1>
+              <p class="page-subtitle" id="fin-page-subtitle">Acompanhe o valor total da dívida, parcelas pagas e quanto falta pagar.</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" class="btn btn-outline" onclick="openFinGenerateModal()">📅 Gerar Parcelas</button>
+              <button type="button" class="btn btn-navy" onclick="window.print()">🖨️ Salvar em PDF</button>
+            </div>
+          </div>
+
+          <div class="fin-kpi-grid mb-16">
+            <div class="card kpi-navy-border">
+              <div class="kpi-label">VALOR DA DÍVIDA</div>
+              <div class="kpi-value" id="fin-total-debt">R$ 0,00</div>
+              <form class="fin-debt-edit-row no-print" onsubmit="saveFinTotalDebt(event)">
+                <input type="text" inputmode="numeric" id="fin-debt-input" class="currency-input" placeholder="Alterar dívida" />
+                <button type="submit" class="btn btn-navy btn-sm">Salvar</button>
+              </form>
+            </div>
+
+            <div class="card card-emerald-rich">
+              <div class="kpi-label">VALOR PAGO</div>
+              <div class="kpi-value" id="fin-total-paid">R$ 0,00</div>
+              <div class="muted-light" id="fin-paid-pct">0% quitado</div>
+            </div>
+
+            <div class="card kpi-amber-border">
+              <div class="kpi-label">FALTA PAGAR</div>
+              <div class="kpi-value" id="fin-remaining">R$ 0,00</div>
+              <div class="muted-text" id="fin-paid-count">0 de 0 parcelas pagas</div>
+              <div class="fin-progress-track">
+                <div class="fin-progress-fill" id="fin-progress-fill" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-16 no-print">
+            <div class="card-header-compact">
+              <h3 class="card-title">Adicionar / Registrar Parcela</h3>
+            </div>
+            <form class="fin-inline-form" onsubmit="addFinInstallment(event)">
+              <div class="form-group">
+                <label for="fin-inst-num">Parcela Nº</label>
+                <input type="number" id="fin-inst-num" min="1" placeholder="1" required />
+              </div>
+              <div class="form-group">
+                <label for="fin-inst-date">Data do Pagamento</label>
+                <input type="date" id="fin-inst-date" required />
+              </div>
+              <div class="form-group">
+                <label for="fin-inst-val">Valor Pago (R$)</label>
+                <input type="text" inputmode="numeric" id="fin-inst-val" class="currency-input" placeholder="0,00 (vazio = em aberto)" />
+              </div>
+              <button type="submit" class="btn btn-emerald">+ Adicionar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header-compact">
+              <h3 class="card-title">Tabela de Parcelas</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Parcela</th>
+                    <th>Data do Pagamento</th>
+                    <th class="text-right">Valor</th>
+                    <th>Status</th>
+                    <th class="actions-col no-print">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="fin-installments-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Navegação Inferior Mobile -->
+    <nav class="mobile-bottom-nav">
+      <button class="m-nav-item active" data-tab="dashboard" data-profile-type="normal" onclick="switchTab('dashboard')">
+        <span>📊</span>
+        <small>Início</small>
+      </button>
+      <button class="m-nav-item" data-tab="receitas" data-profile-type="normal" onclick="switchTab('receitas')">
+        <span>💰</span>
+        <small>Receitas</small>
+      </button>
+      <button class="m-nav-item" data-tab="fixas" data-profile-type="normal" onclick="switchTab('fixas')">
+        <span>📄</span>
+        <small>Fixas</small>
+      </button>
+      <button class="m-nav-item" data-tab="gastos" data-profile-type="normal" onclick="switchTab('gastos')">
+        <span>🛍️</span>
+        <small>Gastos</small>
+      </button>
+      <button class="m-nav-item" data-tab="reserva" data-profile-type="normal" onclick="switchTab('reserva')">
+        <span>🐷</span>
+        <small>Reserva</small>
+      </button>
+      <button class="m-nav-item" data-tab="relatorio" data-profile-type="normal" onclick="switchTab('relatorio')">
+        <span>📑</span>
+        <small>Relatório</small>
+      </button>
+      <button class="m-nav-item hidden" data-tab="financiamento" data-profile-type="financing" onclick="switchTab('financiamento')">
+        <span>🚗</span>
+        <small>Parcelas</small>
+      </button>
+      <button class="m-nav-item" data-tab="config" onclick="switchTab('config')">
+        <span>⚙️</span>
+        <small>Config.</small>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== MODAIS ==================== -->
+  <!-- Modal Novo / Editar Gasto -->
+  <div id="modal-expense" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-expense-title">Cadastrar Novo Gasto</h3>
+        <button class="close-btn" onclick="closeModal('modal-expense')">&times;</button>
+      </div>
+      <form id="modal-expense-form" onsubmit="saveExpenseModal(event)">
+        <input type="hidden" id="m-exp-id" />
+        <div class="form-group">
+          <label>Nome do Registro / Gasto</label>
+          <input type="text" id="m-exp-desc" placeholder="Ex: Supermercado, Pizza, Remédio" required />
+        </div>
+        <div class="two-col-inputs">
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="text" inputmode="numeric" id="m-exp-val" class="currency-input" placeholder="0,00" required />
+          </div>
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="m-exp-date" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="m-exp-cat">
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Compras">Compras</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-expense')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald">Salvar &amp; Debitar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Nova / Editar Conta Fixa -->
+  <div id="modal-fixed" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-fixed-title">Nova Conta Fixa</h3>
+        <button class="close-btn" onclick="closeModal('modal-fixed')">&times;</button>
+      </div>
+      <form id="modal-fixed-form" onsubmit="saveFixedModal(event)">
+        <input type="hidden" id="m-fix-id" />
+        <div class="form-group">
+          <label>Nome do Registro / Conta</label>
+          <input type="text" id="m-fix-desc" placeholder="Ex: Azza Internet, Carro, Cartão Santander" required />
+        </div>
+        <div class="two-col-inputs">
+          <div class="form-group">
+            <label>Valor Mensal (R$)</label>
+            <input type="text" inputmode="numeric" id="m-fix-val" class="currency-input" placeholder="0,00" required />
+          </div>
+          <div class="form-group">
+            <label>Dia do Vencimento</label>
+            <input type="number" min="1" max="31" id="m-fix-due" value="10" required />
+          </div>
+        </div>
+        <div class="two-col-inputs">
+          <div class="form-group">
+            <label>Parcela Atual (opcional)</label>
+            <input type="number" min="1" id="m-fix-pcurr" placeholder="Ex: 15 (vazio = contínua)" />
+          </div>
+          <div class="form-group">
+            <label>Total de Parcelas (opcional)</label>
+            <input type="number" min="1" id="m-fix-ptotal" placeholder="Ex: 30" />
+          </div>
+        </div>
+        <div class="two-col-inputs">
+          <div class="form-group checkbox-row">
+            <input type="checkbox" id="m-fix-continuous" onchange="toggleFixedContinuousUI()" />
+            <label for="m-fix-continuous">Conta Contínua</label>
+          </div>
+          <div class="form-group checkbox-row">
+            <input type="checkbox" id="m-fix-paid" />
+            <label for="m-fix-paid">Conta já paga neste mês?</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-fixed')">Cancelar</button>
+          <button type="submit" class="btn btn-navy">Salvar Conta Fixa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Renda Extra -->
+  <div id="modal-extra" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-extra-title">Adicionar Renda Extra</h3>
+        <button class="close-btn" onclick="closeModal('modal-extra')">&times;</button>
+      </div>
+      <form id="modal-extra-form" onsubmit="saveExtraModal(event)">
+        <input type="hidden" id="m-ext-id" />
+        <div class="form-group">
+          <label>Descrição</label>
+          <input type="text" id="m-ext-desc" placeholder="Ex: Freelance, FGTS, Bônus" required />
+        </div>
+        <div class="two-col-inputs">
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="text" inputmode="numeric" id="m-ext-val" class="currency-input" placeholder="0,00" required />
+          </div>
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="m-ext-date" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-extra')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald">Salvar Renda Extra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Editar Anotação de Banco -->
+  <div id="modal-bank-note" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Editar Banco / Finalidade</h3>
+        <button class="close-btn" onclick="closeModal('modal-bank-note')">&times;</button>
+      </div>
+      <form onsubmit="saveBankNoteModal(event)">
+        <input type="hidden" id="m-bn-id" />
+        <div class="form-group">
+          <label>Nome do Banco / Local</label>
+          <input type="text" id="m-bn-bank" required />
+        </div>
+        <div class="form-group">
+          <label>O que está guardado nele</label>
+          <input type="text" id="m-bn-desc" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-bank-note')">Cancelar</button>
+          <button type="submit" class="btn btn-navy">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Backup -->
+  <div id="modal-backup" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Backup &amp; Sincronização</h3>
+        <button class="close-btn" onclick="closeModal('modal-backup')">&times;</button>
+      </div>
+      <p class="muted-text mb-16">
+        Seus dados ficam salvos localmente no navegador. Para levar seus lançamentos do computador para o celular (ou vice-versa), exporte o arquivo JSON e importe no outro aparelho.
+      </p>
+      <div class="stacked-form">
+        <button class="btn btn-navy btn-block" onclick="exportBackup()">⬇ Baixar Backup (.json)</button>
+        <label class="btn btn-outline btn-block file-upload-btn">
+          ⬆ Importar Backup (.json)
+          <input type="file" accept=".json" onchange="importBackup(event)" hidden />
+        </label>
+        <hr class="divider" />
+        <button class="btn btn-danger-outline btn-block" onclick="resetToSeedData()">
+          ↺ Restaurar Dados Iniciais da Planilha
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Novo Controle / Perfil -->
+  <div id="modal-new-profile" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Criar Novo Controle</h3>
+        <button class="close-btn" onclick="closeModal('modal-new-profile')">&times;</button>
+      </div>
+      <form onsubmit="createNewProfile(event)">
+        <input type="hidden" id="new-profile-type" value="normal" />
+        <div class="form-group">
+          <label>Tipo de Controle</label>
+          <div class="profile-type-selector">
+            <button type="button" class="profile-type-btn active" id="btn-type-normal" onclick="selectNewProfileType('normal')">
+              <strong>Controle Normal</strong>
+              <span>Receitas, contas fixas, gastos e reservas</span>
+            </button>
+            <button type="button" class="profile-type-btn" id="btn-type-financing" onclick="selectNewProfileType('financing')">
+              <strong>Financiamento</strong>
+              <span>Dívida total, parcelas pagas e falta pagar</span>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="new-profile-name">Nome do Controle / Pessoa</label>
+          <input type="text" id="new-profile-name" placeholder="Ex: Maria, Pagamento do Carro..." required />
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label for="new-profile-obs">Observação</label>
+          <input type="text" id="new-profile-obs" placeholder="Ex: Controle da Esposa, Financiamento Carro..." />
+        </div>
+        <div id="new-profile-financing-fields" class="hidden" style="margin-top:12px;">
+          <div class="form-group">
+            <label for="new-profile-debt">Valor Total da Dívida (R$)</label>
+            <input type="text" inputmode="numeric" id="new-profile-debt" class="currency-input" placeholder="Ex: 11.320,00" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-new-profile')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald">+ Criar Controle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Editar Parcela do Financiamento -->
+  <div id="modal-fin-edit" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Editar Parcela</h3>
+        <button class="close-btn" onclick="closeModal('modal-fin-edit')">&times;</button>
+      </div>
+      <form onsubmit="saveFinEditModal(event)">
+        <input type="hidden" id="m-fin-id" />
+        <div class="two-col-inputs">
+          <div class="form-group">
+            <label for="m-fin-num">Parcela Nº</label>
+            <input type="number" id="m-fin-num" min="1" required />
+          </div>
+          <div class="form-group">
+            <label for="m-fin-date">Data do Pagamento</label>
+            <input type="date" id="m-fin-date" required />
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label for="m-fin-val">Valor Pago (R$)</label>
+          <input type="text" inputmode="numeric" id="m-fin-val" class="currency-input" placeholder="0,00 (deixe 0 ou vazio se em aberto)" />
+        </div>
+        <label class="checkbox-row" style="margin-top:12px;">
+          <input type="checkbox" id="m-fin-paid" />
+          <span>Parcela paga</span>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-fin-edit')">Cancelar</button>
+          <button type="submit" class="btn btn-navy">Salvar Parcela</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Gerar Parcelas Mensais -->
+  <div id="modal-fin-generate" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Gerar Parcelas Mensais</h3>
+        <button class="close-btn" onclick="closeModal('modal-fin-generate')">&times;</button>
+      </div>
+      <form onsubmit="generateFinInstallments(event)">
+        <div class="two-col-inputs">
+          <div class="form-group">
+            <label for="fin-gen-start">Começar na Parcela Nº</label>
+            <input type="number" id="fin-gen-start" min="1" value="1" required />
+          </div>
+          <div class="form-group">
+            <label for="fin-gen-qty">Quantidade de Parcelas</label>
+            <input type="number" id="fin-gen-qty" min="1" max="120" value="12" required />
+          </div>
+        </div>
+        <div class="two-col-inputs" style="margin-top:12px;">
+          <div class="form-group">
+            <label for="fin-gen-date">Data da 1ª Parcela</label>
+            <input type="date" id="fin-gen-date" required />
+          </div>
+          <div class="form-group">
+            <label for="fin-gen-val">Valor Padrão (opcional)</label>
+            <input type="text" inputmode="numeric" id="fin-gen-val" class="currency-input" placeholder="0,00 (vazio = em aberto)" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-fin-generate')">Cancelar</button>
+          <button type="submit" class="btn btn-emerald">Gerar Parcelas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="chart-tooltip" class="chart-tooltip hidden"></div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="seed.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
