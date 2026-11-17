@@ -805,7 +805,36 @@ body {
   background: var(--surface-alt);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 4px 10px;
+  padding: 4px 6px;
+}
+
+.date-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.date-nav-btn:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--text);
+}
+
+.date-nav-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.date-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .select-clean {

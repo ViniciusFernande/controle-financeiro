@@ -347,13 +347,14 @@ async function logoutFirebase() {
   }
 }
 
+const AVAILABLE_YEARS = [2026, 2027, 2028, 2029, 2030];
+
 function populateDateSelectors() {
   const monthOpts = MONTHS_PT.map((name, idx) =>
     `<option value="${idx + 1}" ${idx + 1 === currentMonth ? 'selected' : ''}>${name}</option>`
   ).join('');
 
-  const years = [2026, 2027, 2028, 2029, 2030];
-  const yearOpts = years.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('');
+  const yearOpts = AVAILABLE_YEARS.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('');
 
   document.querySelectorAll('.sync-select-month').forEach(sel => {
     sel.innerHTML = monthOpts;
@@ -379,6 +380,7 @@ function populateDateSelectors() {
     resChartY.innerHTML = yearOpts;
     resChartY.value = currentYear;
   }
+  updateDateNavButtons();
 }
 
 function setDefaultFormDates() {
@@ -600,6 +602,40 @@ function switchTab(tabName) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function updateDateNavButtons() {
+  const minYear = AVAILABLE_YEARS[0];
+  const maxYear = AVAILABLE_YEARS[AVAILABLE_YEARS.length - 1];
+  const atStart = currentYear <= minYear && currentMonth <= 1;
+  const atEnd = currentYear >= maxYear && currentMonth >= 12;
+
+  document.querySelectorAll('.date-nav-btn[data-dir="-1"]').forEach(btn => {
+    btn.disabled = atStart;
+  });
+  document.querySelectorAll('.date-nav-btn[data-dir="1"]').forEach(btn => {
+    btn.disabled = atEnd;
+  });
+}
+
+function stepMonth(delta) {
+  let nextMonth = currentMonth + delta;
+  let nextYear = currentYear;
+  if (nextMonth < 1) {
+    nextMonth = 12;
+    nextYear -= 1;
+  } else if (nextMonth > 12) {
+    nextMonth = 1;
+    nextYear += 1;
+  }
+
+  const minYear = AVAILABLE_YEARS[0];
+  const maxYear = AVAILABLE_YEARS[AVAILABLE_YEARS.length - 1];
+  if (nextYear < minYear || nextYear > maxYear) return;
+
+  currentMonth = nextMonth;
+  currentYear = nextYear;
+  changeMonthYear();
+}
+
 function changeMonthYear(changedEl) {
   if (changedEl && changedEl.classList.contains('sync-select-month')) {
     currentMonth = Number(changedEl.value);
@@ -608,6 +644,7 @@ function changeMonthYear(changedEl) {
   }
   document.querySelectorAll('.sync-select-month').forEach(sel => { sel.value = currentMonth; });
   document.querySelectorAll('.sync-select-year').forEach(sel => { sel.value = currentYear; });
+  updateDateNavButtons();
   setDefaultFormDates();
   renderAll();
 }
