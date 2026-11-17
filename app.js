@@ -26,11 +26,15 @@ function formatCurrencyNumber(num) {
   });
 }
 
+function parseCurrencyString(str) {
+  if (!str || !String(str).trim()) return 0;
+  const cleaned = String(str).replace(/\./g, '').replace(',', '.');
+  return parseFloat(cleaned) || 0;
+}
+
 function parseCurrencyInput(id) {
   const el = document.getElementById(id);
-  if (!el || !el.value.trim()) return 0;
-  const cleaned = el.value.replace(/\./g, '').replace(',', '.');
-  return parseFloat(cleaned) || 0;
+  return el ? parseCurrencyString(el.value) : 0;
 }
 
 function setCurrencyInput(id, num) {
@@ -43,18 +47,22 @@ function setCurrencyInput(id, num) {
   el.value = formatCurrencyNumber(num);
 }
 
-function initCurrencyMasks() {
-  document.querySelectorAll('.currency-input').forEach(input => {
-    input.addEventListener('input', () => {
-      const digits = input.value.replace(/\D/g, '');
-      if (!digits) {
-        input.value = '';
-        return;
-      }
-      const value = parseInt(digits, 10) / 100;
-      input.value = formatCurrencyNumber(value);
-    });
+function bindCurrencyMask(input) {
+  if (!input || input.dataset.maskBound) return;
+  input.dataset.maskBound = '1';
+  input.addEventListener('input', () => {
+    const digits = input.value.replace(/\D/g, '');
+    if (!digits) {
+      input.value = '';
+      return;
+    }
+    const value = parseInt(digits, 10) / 100;
+    input.value = formatCurrencyNumber(value);
   });
+}
+
+function initCurrencyMasks() {
+  document.querySelectorAll('.currency-input').forEach(bindCurrencyMask);
 }
 
 function formatDateBR(iso) {
@@ -200,6 +208,7 @@ function computeMonthSummary(profileKey, year, month, depth = 0) {
 function init() {
   populateDateSelectors();
   initCurrencyMasks();
+  initSimulacaoListeners();
   setDefaultFormDates();
   initFirebaseAuth();
   if ('serviceWorker' in navigator) {
@@ -678,6 +687,7 @@ function renderAll() {
   renderGastos(sum, mData);
   renderReserva(sum, mData);
   renderRelatorio();
+  renderSimulacao(sum, mData);
   syncExpenseCategorySelects();
   renderConfig();
 }
@@ -2115,6 +2125,193 @@ function renderRelatorio() {
 function printReportPDF() {
   renderRelatorio();
   window.print();
+}
+
+// ==================== ABA: SIMULAÇÃO ====================
+let simLoadedContext = '';
+let simPurchases = [{ desc: '', valStr: '' }];
+
+function initSimulacaoListeners() {
+  ['sim-salario', 'sim-bonus13', 'sim-extra', 'sim-guardar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => calculateSimulacao());
+    }
+  });
+}
+
+function renderSimulacao(sum, mData) {
+  if (!activeProfile || !sum) return;
+  const monthName = MONTHS_PT[currentMonth - 1];
+  const monthRef = `${monthName}/${currentYear}`;
+
+  const subEl = document.getElementById('sim-subtitle');
+  if (subEl) subEl.textContent = `Simule compras e veja quanto dinheiro livre sobra em ${monthName} ${currentYear}.`;
+
+  const fixasRefEl = document.getElementById('sim-fixas-mes-ref');
+  if (fixasRefEl) fixasRefEl.textContent = monthRef;
+
+  const fixasEl = document.getElementById('sim-total-fixas');
+  if (fixasEl) fixasEl.textContent = formatBRL(sum.totalFixas);
+
+  const fixasCountEl = document.getElementById('sim-fixas-count');
+  if (fixasCountEl) {
+    fixasCountEl.textContent = `${sum.fixedTotalCount} ${sum.fixedTotalCount === 1 ? 'conta' : 'contas'}`;
+  }
+
+  const contextKey = `${activeProfile}:${getMonthKey()}`;
+  if (simLoadedContext !== contextKey) {
+    simLoadedContext = contextKey;
+    setCurrencyInput('sim-salario', sum.salary > 0 ? sum.salary : '');
+    setCurrencyInput('sim-bonus13', sum.bonus13 > 0 ? sum.bonus13 : '');
+    setCurrencyInput('sim-extra', sum.totalExtra > 0 ? sum.totalExtra : '');
+    setCurrencyInput('sim-guardar', sum.totalReservado > 0 ? sum.totalReservado : '');
+  }
+
+  renderSimPurchasesList();
+  calculateSimulacao(sum);
+}
+
+function renderSimPurchasesList() {
+  const container = document.getElementById('sim-purchases-list');
+  if (!container) return;
+
+  if (simPurchases.length === 0) {
+    container.innerHTML = `<p class="muted-text" style="padding: 8px 0;">Nenhuma compra adicionada. Clique em <strong>+ Adicionar compra</strong> para simular.</p>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  simPurchases.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'sim-purchase-row';
+
+    const descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.placeholder = `Compra ${idx + 1} (ex: Celular, Móvel...)`;
+    descInput.value = item.desc || '';
+    descInput.addEventListener('input', () => {
+      simPurchases[idx].desc = descInput.value;
+    });
+
+    const prefixWrap = document.createElement('div');
+    prefixWrap.className = 'input-prefix-wrap';
+    const prefixSpan = document.createElement('span');
+    prefixSpan.textContent = 'R$';
+    const valInput = document.createElement('input');
+    valInput.type = 'text';
+    valInput.inputMode = 'numeric';
+    valInput.className = 'currency-input';
+    valInput.placeholder = '0,00';
+    valInput.value = item.valStr || '';
+    bindCurrencyMask(valInput);
+    valInput.addEventListener('input', () => {
+      simPurchases[idx].valStr = valInput.value;
+      calculateSimulacao();
+    });
+    prefixWrap.appendChild(prefixSpan);
+    prefixWrap.appendChild(valInput);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'sim-remove-btn';
+    removeBtn.title = 'Remover compra';
+    removeBtn.setAttribute('aria-label', 'Remover compra');
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', () => removeSimPurchaseRow(idx));
+
+    row.appendChild(descInput);
+    row.appendChild(prefixWrap);
+    row.appendChild(removeBtn);
+    container.appendChild(row);
+  });
+}
+
+function addSimPurchaseRow() {
+  simPurchases.push({ desc: '', valStr: '' });
+  renderSimPurchasesList();
+  calculateSimulacao();
+  const rows = document.querySelectorAll('#sim-purchases-list .sim-purchase-row input[type="text"]:not(.currency-input)');
+  if (rows.length > 0) rows[rows.length - 1].focus();
+}
+
+function removeSimPurchaseRow(idx) {
+  simPurchases.splice(idx, 1);
+  renderSimPurchasesList();
+  calculateSimulacao();
+}
+
+function resetSimulacao() {
+  simLoadedContext = '';
+  simPurchases = [{ desc: '', valStr: '' }];
+  const sum = computeMonthSummary(activeProfile, currentYear, currentMonth);
+  const mData = db[activeProfile].months[getMonthKey()];
+  renderSimulacao(sum, mData);
+  showToast('Simulação restaurada com os dados do mês!');
+}
+
+function calculateSimulacao(precomputedSum) {
+  if (!activeProfile) return;
+  const sum = precomputedSum || computeMonthSummary(activeProfile, currentYear, currentMonth);
+
+  const salario = parseCurrencyInput('sim-salario');
+  const bonus13 = parseCurrencyInput('sim-bonus13');
+  const extra = parseCurrencyInput('sim-extra');
+  const guardar = parseCurrencyInput('sim-guardar');
+
+  const totalEntradas = salario + bonus13 + extra;
+  const dizimo = totalEntradas * 0.10;
+  const totalFixas = sum.totalFixas || 0;
+
+  let activePurchasesCount = 0;
+  const totalCompras = simPurchases.reduce((acc, item) => {
+    const val = parseCurrencyString(item.valStr);
+    if (val > 0) activePurchasesCount++;
+    return acc + val;
+  }, 0);
+
+  const dinheiroLivre = totalEntradas - dizimo - totalFixas - guardar - totalCompras;
+
+  const dizimoEl = document.getElementById('sim-dizimo');
+  if (dizimoEl) dizimoEl.textContent = formatBRL(dizimo);
+
+  const comprasEl = document.getElementById('sim-total-compras');
+  if (comprasEl) comprasEl.textContent = formatBRL(totalCompras);
+
+  const comprasCountEl = document.getElementById('sim-compras-count');
+  if (comprasCountEl) {
+    comprasCountEl.textContent = `${activePurchasesCount} ${activePurchasesCount === 1 ? 'item' : 'itens'}`;
+  }
+
+  const livreEl = document.getElementById('sim-valor-livre');
+  if (livreEl) livreEl.textContent = formatBRL(dinheiroLivre);
+
+  const kpiCard = document.getElementById('sim-kpi-livre-card');
+  const livreBadge = document.getElementById('sim-livre-badge');
+  if (kpiCard && livreBadge) {
+    const isNegative = dinheiroLivre < 0;
+    kpiCard.classList.toggle('card-emerald-rich', !isNegative);
+    kpiCard.classList.toggle('card-red-rich', isNegative);
+    livreBadge.textContent = isNegative ? 'Falta dinheiro' : 'Livre';
+  }
+
+  const sumEntradasEl = document.getElementById('sim-sum-entradas');
+  if (sumEntradasEl) sumEntradasEl.textContent = formatBRL(totalEntradas);
+  const sumDizimoEl = document.getElementById('sim-sum-dizimo');
+  if (sumDizimoEl) sumDizimoEl.textContent = formatBRL(dizimo);
+  const sumFixasEl = document.getElementById('sim-sum-fixas');
+  if (sumFixasEl) sumFixasEl.textContent = formatBRL(totalFixas);
+  const sumGuardarEl = document.getElementById('sim-sum-guardar');
+  if (sumGuardarEl) sumGuardarEl.textContent = formatBRL(guardar);
+  const sumComprasEl = document.getElementById('sim-sum-compras');
+  if (sumComprasEl) sumComprasEl.textContent = formatBRL(totalCompras);
+
+  const sumLivreEl = document.getElementById('sim-sum-livre');
+  if (sumLivreEl) {
+    sumLivreEl.textContent = formatBRL(dinheiroLivre);
+    sumLivreEl.classList.toggle('text-emerald', dinheiroLivre >= 0);
+    sumLivreEl.classList.toggle('text-red', dinheiroLivre < 0);
+  }
 }
 
 function escapeHtml(str) {

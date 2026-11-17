@@ -116,6 +116,10 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
           <span>Relatório</span>
         </button>
+        <button class="nav-item" data-tab="simulacao" data-profile-type="normal" title="Simulação" onclick="switchTab('simulacao')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="12" y1="18" x2="16" y2="18"/></svg>
+          <span>Simulação</span>
+        </button>
         <button class="nav-item hidden" data-tab="financiamento" data-profile-type="financing" title="Financiamento" onclick="switchTab('financiamento')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
           <span>Financiamento</span>
@@ -833,6 +837,156 @@
           <div id="report-preview-area" class="card report-sheet"></div>
         </section>
 
+        <!-- ==================== ABA: SIMULAÇÃO ==================== -->
+        <section id="tab-simulacao" class="tab-panel">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Simulação</h1>
+              <p class="page-subtitle" id="sim-subtitle">Simule compras e veja quanto dinheiro livre sobra no mês.</p>
+            </div>
+            <div class="page-actions">
+              <div class="date-selector-group">
+                <button type="button" class="date-nav-btn" data-dir="-1" onclick="stepMonth(-1)" title="Mês anterior" aria-label="Mês anterior">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <select class="select-clean sync-select-month" onchange="changeMonthYear(this)"></select>
+                <span class="sep">/</span>
+                <select class="select-clean sync-select-year" onchange="changeMonthYear(this)"></select>
+                <button type="button" class="date-nav-btn" data-dir="1" onclick="stepMonth(1)" title="Próximo mês" aria-label="Próximo mês">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+              <button type="button" class="btn btn-outline" onclick="resetSimulacao()" title="Restaurar valores do mês e limpar compras">↺ Restaurar mês</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="card card-emerald-rich" id="sim-kpi-livre-card">
+              <div class="card-top-row">
+                <span class="kpi-label">DINHEIRO LIVRE NA SIMULAÇÃO</span>
+                <span class="badge-pill-green" id="sim-livre-badge">Livre</span>
+              </div>
+              <div class="big-number text-white" id="sim-valor-livre">R$ 0,00</div>
+              <p class="muted-light">Quanto sobra para você após dízimo, contas fixas, reserva e compras.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-top-row">
+                <span class="mini-label">Contas Fixas do Mês</span>
+                <span class="badge badge-neutral" id="sim-fixas-count">0 contas</span>
+              </div>
+              <div class="big-number" id="sim-total-fixas">R$ 0,00</div>
+              <p class="muted-text">Puxado automaticamente de <strong id="sim-fixas-mes-ref">Novembro/2026</strong>.</p>
+            </div>
+
+            <div class="card card-amber-soft">
+              <div class="card-top-row">
+                <span class="mini-label">Dízimo (10%)</span>
+                <span class="badge badge-amber">Automático</span>
+              </div>
+              <div class="big-number" id="sim-dizimo">R$ 0,00</div>
+              <p class="muted-text">10% sobre Salário + 13º/Férias + Renda Extra.</p>
+            </div>
+
+            <div class="card kpi-dark">
+              <div class="card-top-row">
+                <span class="kpi-label">COMPRAS SIMULADAS</span>
+                <span class="badge badge-neutral" id="sim-compras-count">0 itens</span>
+              </div>
+              <div class="big-number text-white" id="sim-total-compras">R$ 0,00</div>
+              <p class="muted-light">Soma das compras adicionadas na simulação.</p>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="card">
+              <div class="card-header-compact">
+                <h3 class="card-title">Entradas e Reserva do Mês</h3>
+                <span class="badge badge-emerald">Simulador</span>
+              </div>
+              <p class="muted-text mb-16">Valores preenchidos automaticamente com os dados do mês selecionado. Altere livremente sem afetar seus lançamentos reais.</p>
+
+              <div class="sim-fields-grid">
+                <div class="form-group">
+                  <label for="sim-salario">Salário do Mês</label>
+                  <div class="input-prefix-wrap">
+                    <span>R$</span>
+                    <input type="text" inputmode="numeric" id="sim-salario" class="currency-input" placeholder="0,00" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="sim-bonus13">13º Salário / Férias</label>
+                  <div class="input-prefix-wrap">
+                    <span>R$</span>
+                    <input type="text" inputmode="numeric" id="sim-bonus13" class="currency-input" placeholder="0,00" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="sim-extra">Renda Extra</label>
+                  <div class="input-prefix-wrap">
+                    <span>R$</span>
+                    <input type="text" inputmode="numeric" id="sim-extra" class="currency-input" placeholder="0,00" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="sim-guardar">Quanto irei guardar (Reserva)</label>
+                  <div class="input-prefix-wrap">
+                    <span>R$</span>
+                    <input type="text" inputmode="numeric" id="sim-guardar" class="currency-input" placeholder="0,00" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sim-right-stack">
+              <div class="card">
+                <div class="card-header-compact">
+                  <h3 class="card-title">Compras Novas a Simular</h3>
+                  <button type="button" class="btn btn-navy btn-sm" onclick="addSimPurchaseRow()">+ Adicionar compra</button>
+                </div>
+                <p class="muted-text mb-12">Adicione uma ou mais compras para testar o impacto no seu dinheiro livre.</p>
+                <div id="sim-purchases-list" class="sim-purchases-list"></div>
+              </div>
+
+              <div class="card">
+                <div class="card-header-compact">
+                  <h3 class="card-title">Resumo do Cálculo</h3>
+                </div>
+                <div class="sim-breakdown">
+                  <div class="sim-breakdown-row">
+                    <span>Total de Entradas (Salário + 13º/Férias + Extra)</span>
+                    <strong id="sim-sum-entradas" class="text-emerald">R$ 0,00</strong>
+                  </div>
+                  <div class="sim-breakdown-row">
+                    <span>(-) Dízimo (10%)</span>
+                    <strong id="sim-sum-dizimo">R$ 0,00</strong>
+                  </div>
+                  <div class="sim-breakdown-row">
+                    <span>(-) Contas Fixas do Mês</span>
+                    <strong id="sim-sum-fixas">R$ 0,00</strong>
+                  </div>
+                  <div class="sim-breakdown-row">
+                    <span>(-) Quanto irei guardar</span>
+                    <strong id="sim-sum-guardar">R$ 0,00</strong>
+                  </div>
+                  <div class="sim-breakdown-row">
+                    <span>(-) Compras Simuladas</span>
+                    <strong id="sim-sum-compras">R$ 0,00</strong>
+                  </div>
+                  <div class="sim-breakdown-divider"></div>
+                  <div class="sim-breakdown-row sim-breakdown-total">
+                    <span>(=) Dinheiro Livre Final</span>
+                    <strong id="sim-sum-livre">R$ 0,00</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- ==================== ABA 7: CONFIGURAÇÕES ==================== -->
         <section id="tab-config" class="tab-panel">
           <div class="page-header">
@@ -1055,6 +1209,10 @@
       <button class="m-nav-item" data-tab="relatorio" data-profile-type="normal" onclick="switchTab('relatorio')">
         <span>📑</span>
         <small>Relatório</small>
+      </button>
+      <button class="m-nav-item" data-tab="simulacao" data-profile-type="normal" onclick="switchTab('simulacao')">
+        <span>🧮</span>
+        <small>Simular</small>
       </button>
       <button class="m-nav-item hidden" data-tab="financiamento" data-profile-type="financing" onclick="switchTab('financiamento')">
         <span>🚗</span>

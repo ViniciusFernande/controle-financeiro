@@ -1599,6 +1599,122 @@ body {
 .mb-16 { margin-bottom: 16px; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
 
+/* ==================== SIMULAÇÃO ==================== */
+.card-red-rich {
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  color: #fff;
+  border-color: transparent;
+}
+
+.sim-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.sim-right-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sim-purchases-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sim-purchase-row {
+  display: grid;
+  grid-template-columns: 1fr 150px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.sim-purchase-row input[type="text"]:not(.currency-input) {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-alt);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.sim-purchase-row input[type="text"]:not(.currency-input):focus {
+  outline: none;
+  border-color: var(--navy);
+  background: var(--surface);
+}
+
+.sim-remove-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sim-remove-btn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: var(--red);
+}
+
+.sim-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sim-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  gap: 12px;
+}
+
+.sim-breakdown-row strong {
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sim-breakdown-row strong.text-emerald { color: var(--emerald); }
+.sim-breakdown-row strong.text-red { color: var(--red); }
+
+.sim-breakdown-divider {
+  border-top: 1px dashed var(--border);
+  margin: 4px 0;
+}
+
+.sim-breakdown-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sim-breakdown-total strong {
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  .sim-purchase-row {
+    grid-template-columns: 1fr 130px 34px;
+  }
+}
+
 /* ==================== MOBILE NAV ==================== */
 .mobile-bottom-nav {
   display: none;
