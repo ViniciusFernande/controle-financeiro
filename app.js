@@ -1635,7 +1635,11 @@ function openExpenseModal(editId = null) {
     document.getElementById('m-exp-id').value = '';
     document.getElementById('m-exp-desc').value = '';
     document.getElementById('m-exp-val').value = '';
-    document.getElementById('m-exp-date').value = `${currentYear}-${String(currentMonth).padStart(2, '0')}-14`;
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('m-exp-date').value = `${yyyy}-${mm}-${dd}`;
     catSel.value = cats[0] || 'Outros';
   }
   document.getElementById('modal-expense').classList.remove('hidden');
